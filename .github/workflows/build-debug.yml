@@ -1,0 +1,36 @@
+name: Build Android Debug APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Cordova globally
+        run: npm install -g cordova
+
+      - name: Prepare and Build Debug APK
+        run: |
+          cd app
+          cordova platform rm android || true
+          cordova platform add android
+          cordova build android --debug
+
+      - name: Upload Debug APK (Artifact v4)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FirstGame-Debug
+          path: app/platforms/android/app/build/outputs/**/*.apk
+          if-no-files-found: error
