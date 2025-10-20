@@ -4,34 +4,35 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  build-debug-apk:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
 
     - name: Set up Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v3
       with:
         node-version: '20'
 
-    - name: Set up Java JDK
+    - name: Install Java
       uses: actions/setup-java@v3
       with:
         distribution: temurin
         java-version: 17
 
-    - name: Install Android SDK
-      uses: android-actions/setup-android@v2
-      with:
-        api-level: 35
-        build-tools: 35.0.0
-
     - name: Install Cordova
       run: npm install -g cordova
+
+    - name: Prepare Android SDK
+      run: |
+        mkdir -p $HOME/Android
+        cd $HOME/Android
+        yes | sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools"
 
     - name: Add Android platform
       run: |
@@ -39,13 +40,13 @@ jobs:
         cordova platform remove android || true
         cordova platform add android@14.0.1
 
-    - name: Build Debug APK
+    - name: Force Debug APK build
       run: |
         cd app
         cordova build android --debug -- --stacktrace
 
-    - name: Upload Debug APK Artifact
-      uses: actions/upload-artifact@v3
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
       with:
         name: FirstGame-Debug-APK
         path: app/platforms/android/app/build/outputs/**/*.apk
