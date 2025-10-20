@@ -1,16 +1,29 @@
-name: Upload APK Artifact v4
+name: Build & Upload APK Artifact v4
 on:
   workflow_dispatch:
 jobs:
-  upload:
+  build-android:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Upload Debug APK (Artifact v4)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Cordova
+        run: npm install -g cordova
+
+      - name: Add Android platform
+        run: cordova platform add android@14.0.1
+
+      - name: Build Debug APK
+        run: cordova build android --debug --no-telemetry
+
+      - name: Upload APK Artifact (v4)
         uses: actions/upload-artifact@v4
         with:
           name: FirstGame-Debug-APK
           path: app/platforms/android/app/build/outputs/**/*.apk
-          if-no-files-found: error
