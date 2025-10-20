@@ -1,0 +1,16 @@
+name: Upload APK Artifact v4
+on:
+  workflow_dispatch:
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Upload Debug APK (Artifact v4)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FirstGame-Debug-APK
+          path: app/platforms/android/app/build/outputs/**/*.apk
+          if-no-files-found: error
